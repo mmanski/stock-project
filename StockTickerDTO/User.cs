@@ -8,7 +8,10 @@ namespace StockTickerDTO
 {
     public class User
     {
+        public bool Logged { get; set; }
+        public string Password { get; set; }
         public string Username { get; set; }
-        public string Id { get; private set; }
+        public int Id { get;  set; }
+        //public int Id { get; private set; }
     }
 }
