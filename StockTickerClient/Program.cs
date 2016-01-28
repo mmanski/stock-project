@@ -38,6 +38,7 @@ namespace StockTickerClient
 
         private static void Main(string[] args)
         {
+            ServerConnection();
             Initialize();
             Start();
             Run();
@@ -90,26 +91,22 @@ namespace StockTickerClient
             {
                 var userExist = UserExist(userName);
 
-                if (userExist)
+                while(userExist)
                 {
                     Console.WriteLine("user exist: ");
+                    userName = Console.ReadLine();
+                    userExist = UserExist(userName);
                 }
+                Console.WriteLine("Choose a password: ");
 
-                else
+                var password = Console.ReadLine();
+
+                while(String.IsNullOrEmpty(password))
                 {
-                    Console.WriteLine("Choose a password: ");
-
-                    var password = Console.ReadLine();
-
-                    if (String.IsNullOrEmpty(password))
-                    {
-                        Console.WriteLine("Password is required: ");
-                    }
-                    else
-                    {
-                        var user = CreateUser(userName, password);
-                    }
+                    Console.WriteLine("Password is required: ");
+                    password = Console.ReadLine();
                 }
+                var user = CreateUser(userName, password);
             }
         }
 
@@ -245,7 +242,7 @@ namespace StockTickerClient
             }
         }
 
-        private void ServerConnection()
+        private static void ServerConnection()
         {
             //Set connection
             var connection = new HubConnection("http://localhost:49954/");
@@ -267,7 +264,7 @@ namespace StockTickerClient
 
             }).Wait();
 
-            myHub.Invoke<string>("Hello").ContinueWith(task =>
+            /*myHub.Invoke<string>("Hello").ContinueWith(task =>
             {
                 if (task.IsFaulted)
                 {
@@ -278,17 +275,26 @@ namespace StockTickerClient
                 {
                     Console.WriteLine(task.Result);
                 }
-            });
+            });*/
 
-            myHub.On<string>("addMessage", param =>
+            //myHub.On<string>("addMessage", param =>
+            //{
+                //Console.WriteLine("Message reveived from server: " + param);
+            //});
+
+            myHub.On<int>("addProduct", info =>
             {
-                Console.WriteLine("Message reveived from server: " + param);
+                Console.WriteLine("Product information received: " + info);
             });
 
-            myHub.Invoke<string>("SendMessage", "I'm doing something!!!").Wait();
+            //myHub.Invoke<string>("SendMessage", "I'm doing something!!!").Wait();
+
+            Console.WriteLine("Insert product ID you are interested in:");
+            int id = Int32.Parse(Console.ReadLine());
+            myHub.Invoke<int>("SendProductById", id).Wait();
 
 
-
+            Console.ReadLine();
             Console.Read();
             connection.Stop();
         }
