@@ -8,7 +8,7 @@ namespace StockTickerDTO
 {
     public class StockItem
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Symbol { get; set; }
         public string Name { get; set; }
         public double Value { get; set; }

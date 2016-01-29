@@ -289,9 +289,14 @@ namespace StockTickerClient
 
             //myHub.Invoke<string>("SendMessage", "I'm doing something!!!").Wait();
 
-            Console.WriteLine("Insert product ID you are interested in:");
-            string id = Console.ReadLine();
-            myHub.Invoke<string>("SendProductById", id).Wait();
+            string symbol = "";
+            while(symbol != "x")
+            {
+                Console.WriteLine("Insert product ID you are interested in (x - exit):");
+                symbol = Console.ReadLine();
+                if(symbol != "x") myHub.Invoke<string>("SendProductBySymbol", symbol).Wait();
+            }
+            
             
             Console.Read();
             connection.Stop();

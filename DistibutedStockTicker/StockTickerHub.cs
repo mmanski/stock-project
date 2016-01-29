@@ -34,9 +34,9 @@ namespace DistibutedStockTicker
             //stockIndex++;
         }
 
-        public void SendProductById(string index)
+        public void SendProductBySymbol(string symbol)
         {
-            StockItem result = StockDataProvider.Container.StockProducts.Find(x => x.Id == Int32.Parse(index));
+            StockItem result = StockDataProvider.Container.StockProducts.Find(x => x.Symbol == symbol);
             string info = result.Id.ToString() + " " + result.Name + " " + result.Symbol;
 
             Clients.All.addProduct(info);

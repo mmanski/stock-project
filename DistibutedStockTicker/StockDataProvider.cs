@@ -14,13 +14,11 @@ namespace DistibutedStockTicker
 
         private StockDataProvider()
         {
-            int stockIndex = 0;
             var stockTicker = Stock.Ticker.StockTicker.CreateInstance(AppDomain.CurrentDomain.BaseDirectory + "StockData.txt");
             foreach (var stock in stockTicker.AllStocks)
             {
-                StockProducts.Add(new StockItem() { Id = stockIndex, Name = stock.FullName, Symbol = stock.Symbol });
+                StockProducts.Add(new StockItem() { Id = stock.Index.IndexName, Name = stock.FullName, Symbol = stock.Symbol });
                 Console.WriteLine("Stock: {0} <{1}>", stock.Symbol, stock.Index.IndexName);
-                stockIndex++;
             }
 
             stockTicker.StockChanged += (sender, args) =>
