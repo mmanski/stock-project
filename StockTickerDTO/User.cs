@@ -6,12 +6,18 @@ using System.Threading.Tasks;
 
 namespace StockTickerDTO
 {
-    public class User
+    public class UserDTO
     {
-        public bool Logged { get; set; }
-        public string Password { get; set; }
-        public string Username { get; set; }
-        public int Id { get;  set; }
-        //public int Id { get; private set; }
+      
+        public string Username { get; private set; }
+        public string Id { get; private set; }
+
+        public UserDTO(string username, string connectionId)
+        {
+            this.Username = username;
+            this.Id = connectionId;
+        }
+
+
     }
 }

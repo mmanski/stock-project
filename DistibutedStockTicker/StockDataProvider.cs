@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using StockTickerDTO;
 using System.Threading;
+using Microsoft.AspNet.SignalR;
 
 namespace DistibutedStockTicker
 {
@@ -11,6 +12,8 @@ namespace DistibutedStockTicker
     {
         private static volatile StockDataProvider container;
         private static object syncRoot = new Object();
+
+        private readonly SubscriptionHandler _subscriptionHandler = SubscriptionHandler.Instance;
 
         private StockDataProvider()
         {
@@ -23,8 +26,14 @@ namespace DistibutedStockTicker
 
             stockTicker.StockChanged += (sender, args) =>
             {
-                StockDataProvider.Container.StockProducts.Find(x => x.Symbol == args.Product.Symbol).Value = args.CurrentValue;
-                //Console.WriteLine("{0}: New price received for {1} -> {2} [Thread: {3}]", args.Time, args.Product.Symbol, args.CurrentValue, Thread.CurrentThread.ManagedThreadId);
+                string symbol = args.Product.Symbol;
+                var stockItem = StockDataProvider.Container.StockProducts.Find(x => x.Symbol == symbol);
+                stockItem.Value = args.CurrentValue;
+                // TODO: log info here
+                var hub = GlobalHost.ConnectionManager.GetHubContext<StockTickerHub>();
+                List<string> connectionIds =_subscriptionHandler.getSubscribedUsers(stockItem).Select(x => x.Id).ToList();
+
+                hub.Clients.Clients(connectionIds).subscriptionUpdate(stockItem);
             };
 
             stockTicker.Start();

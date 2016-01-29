@@ -5,13 +5,16 @@ using System.Web;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using StockTickerDTO;
+using System.Threading.Tasks;
 
 namespace DistibutedStockTicker
 {
-     [HubName("StockTickerHub")]
+    [HubName("StockTickerHub")]
     public class StockTickerHub : Hub
     {
-        public static int stockIndex = 0;
+        private readonly UserManager _userManager = UserManager.Instance;
+
+        private readonly SubscriptionHandler _subscriptionHandler = SubscriptionHandler.Instance;
 
         public string Hello()
         {
@@ -28,18 +31,70 @@ namespace DistibutedStockTicker
             Clients.All.receiveTicker(symbol);
         }
 
-        public void AddStockProduct(string fullName, string symbol, string index)
+        public StockItem Subscribe(string symbol)
         {
-            //StockDataSender.Container.StockProducts.Add(new StockItem() { Id = stockIndex, Name = fullName, Symbol = symbol });
-            //stockIndex++;
+            string username = Context.QueryString["username"];
+            var stockItem = StockDataProvider.Container.StockProducts.Find(x => x.Symbol == symbol);
+            var user = _userManager.FindUserByName(username);
+
+            _subscriptionHandler.Subscribe(stockItem, user);
+
+            return stockItem;
         }
 
-        public void SendProductBySymbol(string symbol)
+        public void Unsubscribe(string symbol)
+        {
+            string username = Context.QueryString["username"];
+            var stockItem = StockDataProvider.Container.StockProducts.Find(x => x.Symbol == symbol);
+            var user = _userManager.FindUserByName(username);
+
+            _subscriptionHandler.Unscubscribe(stockItem, user);
+        }
+
+        public void notifySubscribers()
+        {
+
+        }
+
+        public void GetProductBySymbol(string symbol)
         {
             StockItem result = StockDataProvider.Container.StockProducts.Find(x => x.Symbol == symbol);
-            string info = result.Id.ToString() + " " + result.Name + " " + result.Symbol + " " + result.Value;
+            string info = result != null
+                ? result.Id.ToString() + " " + result.Name + " " + result.Symbol + " " + result.Value
+                : "Product not found";
+            string name = Context.QueryString["username"];
 
-            Clients.All.addProduct(info);
+            Clients.Client(_userManager.FindUserByName(name).Id).addProduct(info);
+        }
+
+        public string GetAllStockItems()
+        {
+            System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+
+            foreach (StockItem stockItem in StockDataProvider.Container.StockProducts)
+            {
+                string result = stockItem.Id.ToString() + " " + stockItem.Name + " " + stockItem.Symbol + " " + stockItem.Value;
+                stringBuilder.AppendLine(result);
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        public override Task OnConnected()
+        {
+            string name = Context.QueryString["username"];
+
+            _userManager.AddUser(name, Context.ConnectionId);
+            return base.OnConnected();
+        }
+
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            string name = Context.QueryString["username"];
+            _userManager.Remove(_userManager.FindUserByName(name));
+
+            return base.OnDisconnected(stopCalled);
         }
     }
+
 }

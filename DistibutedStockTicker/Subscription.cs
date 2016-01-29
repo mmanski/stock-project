@@ -6,9 +6,15 @@ using StockTickerDTO;
 
 namespace DistibutedStockTicker
 {
-    public class Subscription
+    public class SubscriptionModel
     {
         public StockItem StockItem { get; set; }
-        public IList<User> Users { get; set; }
+        public List<UserDTO> Users { get; set; }
+
+        public SubscriptionModel(StockItem stockItem)
+        {
+            this.StockItem = stockItem;
+            this.Users = new List<UserDTO>();
+        }
     }
 }
