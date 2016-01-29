@@ -282,19 +282,17 @@ namespace StockTickerClient
                 //Console.WriteLine("Message reveived from server: " + param);
             //});
 
-            myHub.On<int>("addProduct", info =>
+            myHub.On<string>("addProduct", param =>
             {
-                Console.WriteLine("Product information received: " + info);
+                Console.WriteLine("Product information received: " + param);
             });
 
             //myHub.Invoke<string>("SendMessage", "I'm doing something!!!").Wait();
 
             Console.WriteLine("Insert product ID you are interested in:");
-            int id = Int32.Parse(Console.ReadLine());
-            myHub.Invoke<int>("SendProductById", id).Wait();
-
-
-            Console.ReadLine();
+            string id = Console.ReadLine();
+            myHub.Invoke<string>("SendProductById", id).Wait();
+            
             Console.Read();
             connection.Stop();
         }

@@ -18,8 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTO", "StockTickerDTO\DTO.c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stock.Ticker", "Stock.Ticker\Stock.Ticker.csproj", "{0A30EB94-06DF-4457-900F-6F810F4CE75B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTickerSender", "StockTickerSender\StockTickerSender.csproj", "{6457F02D-9162-45D8-811A-F9A09D408227}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,10 +40,6 @@ Global
 		{0A30EB94-06DF-4457-900F-6F810F4CE75B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A30EB94-06DF-4457-900F-6F810F4CE75B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A30EB94-06DF-4457-900F-6F810F4CE75B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6457F02D-9162-45D8-811A-F9A09D408227}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6457F02D-9162-45D8-811A-F9A09D408227}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6457F02D-9162-45D8-811A-F9A09D408227}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6457F02D-9162-45D8-811A-F9A09D408227}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

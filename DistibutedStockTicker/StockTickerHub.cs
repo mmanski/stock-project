@@ -12,7 +12,6 @@ namespace DistibutedStockTicker
     public class StockTickerHub : Hub
     {
         public static int stockIndex = 0;
-        List<StockItem> StockProducts = new List<StockItem>();
 
         public string Hello()
         {
@@ -31,13 +30,13 @@ namespace DistibutedStockTicker
 
         public void AddStockProduct(string fullName, string symbol, string index)
         {
-            StockProducts.Add(new StockItem() { Id = stockIndex, Name = fullName, Symbol = symbol });
-            stockIndex++;
+            //StockDataSender.Container.StockProducts.Add(new StockItem() { Id = stockIndex, Name = fullName, Symbol = symbol });
+            //stockIndex++;
         }
 
-        public void SendProductById(int index)
+        public void SendProductById(string index)
         {
-            StockItem result = StockProducts.Find(x => x.Id == index);
+            StockItem result = StockDataProvider.Container.StockProducts.Find(x => x.Id == Int32.Parse(index));
             string info = result.Id.ToString() + " " + result.Name + " " + result.Symbol;
 
             Clients.All.addProduct(info);
