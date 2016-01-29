@@ -37,7 +37,7 @@ namespace DistibutedStockTicker
         public void SendProductBySymbol(string symbol)
         {
             StockItem result = StockDataProvider.Container.StockProducts.Find(x => x.Symbol == symbol);
-            string info = result.Id.ToString() + " " + result.Name + " " + result.Symbol;
+            string info = result.Id.ToString() + " " + result.Name + " " + result.Symbol + " " + result.Value;
 
             Clients.All.addProduct(info);
         }

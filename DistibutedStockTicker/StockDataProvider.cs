@@ -17,12 +17,13 @@ namespace DistibutedStockTicker
             var stockTicker = Stock.Ticker.StockTicker.CreateInstance(AppDomain.CurrentDomain.BaseDirectory + "StockData.txt");
             foreach (var stock in stockTicker.AllStocks)
             {
-                StockProducts.Add(new StockItem() { Id = stock.Index.IndexName, Name = stock.FullName, Symbol = stock.Symbol });
+                StockProducts.Add(new StockItem() { Id = stock.Index.IndexName, Name = stock.FullName, Symbol = stock.Symbol, Value = 0.00 });
                 Console.WriteLine("Stock: {0} <{1}>", stock.Symbol, stock.Index.IndexName);
             }
 
             stockTicker.StockChanged += (sender, args) =>
             {
+                StockDataProvider.Container.StockProducts.Find(x => x.Symbol == args.Product.Symbol).Value = args.CurrentValue;
                 //Console.WriteLine("{0}: New price received for {1} -> {2} [Thread: {3}]", args.Time, args.Product.Symbol, args.CurrentValue, Thread.CurrentThread.ManagedThreadId);
             };
 
