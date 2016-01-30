@@ -16,6 +16,8 @@ namespace DistibutedStockTicker
 
         private readonly SubscriptionHandler _subscriptionHandler = SubscriptionHandler.Instance;
 
+        private List<StockItem> stockItems = StockDataProvider.Container.StockProducts;
+
         public string Hello()
         {
             return "hello!";
@@ -34,7 +36,7 @@ namespace DistibutedStockTicker
         public StockItem Subscribe(string symbol)
         {
             string username = Context.QueryString["username"];
-            var stockItem = StockDataProvider.Container.StockProducts.Find(x => x.Symbol == symbol);
+            var stockItem = stockItems.Find(x => x.Symbol == symbol);
             var user = _userManager.FindUserByName(username);
 
             _subscriptionHandler.Subscribe(stockItem, user);
