@@ -1,54 +1,81 @@
 ﻿using Microsoft.AspNet.SignalR.Client;
+using StockTickerDTO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using StockTickerDTO;
-using System.Xml.Serialization;
-using System.Xml;
-using System.Xml.Linq;
 using System.IO;
 
 namespace StockTickerClient
 {
     class Program
     {
+        private static IHubProxy myHub;
+        private static HubConnection connection;
 
         private static void Main(string[] args)
         {
             Start();
-            Run();
         }
 
-
-        public static void IndexSubscription()
+        public static void StockSubscription()
         {
-            Console.WriteLine("Input index: ");
-
-            var index = Console.ReadLine();
-
-            if (String.IsNullOrEmpty(index))
+            if (myHub != null)
             {
-                Console.WriteLine("index is required: ");
+                var StockItems = myHub.Invoke<string>("GetAllStockItems").Result;
+
+                Console.WriteLine("Chose one stock from this list:");
+                Console.WriteLine("Stock Items: {0}", StockItems);
+
+                string symbol = "";
+
+                while (symbol != "x")
+                {
+                    Console.WriteLine("Insert stock symbol you want to subscribe on (x - exit):");
+                    symbol = Console.ReadLine();
+                    if (symbol != "x")
+                    {
+                        var subscribeSymbol = myHub.Invoke<StockItem>("Subscribe", symbol).Result;
+
+                        if (subscribeSymbol != null)
+                        {
+                            Console.WriteLine("Stock subscript! Check your StockSubscription file");
+                            break;
+                        }
+                        else Console.WriteLine("Stock no exist");
+                    }
+                }
+
+                SubscriptionToFile();
+                Console.ReadKey();
             }
             else
             {
-                Console.WriteLine("Your index :{0}", index);
+                Console.WriteLine("Connection problem!");
+                Console.ReadKey();
             }
         }
 
-        public static void ActionSubscription()
+        public static void StockUnsubscript()
         {
-            Console.WriteLine("Action index: ");
-
-            var action = Console.ReadLine();
-
-            if (String.IsNullOrEmpty(action))
+            if (myHub != null)
             {
-                Console.WriteLine("action is required: ");
+                string symbol = "";
+                while (symbol != "x")
+                {
+                    Console.WriteLine("Insert stock symbol you want to unsubscribe on (x - exit):");
+                    symbol = Console.ReadLine();
+                    if (symbol != "x")
+                    {
+                        myHub.Invoke("Unsubscribe", symbol);
+                        Console.WriteLine("Stock unsubscript!");
+                        break;
+                    }
+                }
+                Console.ReadKey();
             }
             else
             {
-                Console.WriteLine("Your action :{0}", action);
+                Console.WriteLine("Connection problem!");
+                Console.ReadKey();
             }
         }
 
@@ -57,113 +84,151 @@ namespace StockTickerClient
             Console.WriteLine("Write your name: ");
 
             var userName = Console.ReadLine();
+
             Connect(userName);
+
+            if (connection != null)
+                Run();
         }
 
         private static void Connect(string username)
         {
             var querystringData = new Dictionary<string, string>();
             querystringData.Add("username", username);
+            connection = new HubConnection("http://localhost:49954/", querystringData);
+            myHub = connection.CreateHubProxy("StockTickerHub");
 
-            var connection = new HubConnection("http://localhost:49954/", querystringData);
-            var myHub = connection.CreateHubProxy("StockTickerHub");
-
-            connection.Start().ContinueWith(task =>
+            try
             {
-                if (task.IsFaulted)
+                connection.Start().ContinueWith(task =>
                 {
-                    Console.WriteLine("There was an error opening the connection:{0}",
-                                      task.Exception.GetBaseException());
-                }
-                else
-                {
-                    Console.WriteLine("Connected");
-                }
+                    if (task.IsFaulted)
+                    {
+                        Console.WriteLine("There was an error opening the connection:{0}",
+                                          task.Exception.GetBaseException());
+                        Console.ReadKey();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Connected");
+                    }
 
-            }).Wait();
-
-            myHub.On<StockItem>("subscriptionUpdate", param =>
-            {
-                Console.WriteLine("Product information received: " + param.Symbol + " Value:" + param.Value);
-            });
-
-
-            string symbol = "";
-            while (symbol != "x")
-            {
-                Console.WriteLine("Insert stock symbol you want to subscribe on (x - exit):");
-                symbol = Console.ReadLine();
-                if (symbol != "x") myHub.Invoke<StockItem>("Subscribe", symbol).Wait();
+                }).Wait();
             }
-
-
-            Console.Read();
-            connection.Stop();
+            catch (Exception e)
+            {
+                Console.WriteLine("Connection problem! {0}", e.Message);
+                Console.ReadKey();
+            }
         }
 
         private static void Start()
         {
-
-            Console.Clear();
-            Console.WriteLine("Authentication");
-            Console.WriteLine("Choose an option");
-            Console.WriteLine("1 - sign in");
-            Console.WriteLine("0 - close");
-            int z;
-            bool parse = int.TryParse(Console.ReadLine(), out z);
-            if (parse)
+            while (connection == null || connection.State.ToString() == "Disconnected")
             {
-                switch (z)
+                Console.Clear();
+                Console.WriteLine("Authentication");
+                Console.WriteLine("Choose an option");
+                Console.WriteLine("1 - sign in");
+                Console.WriteLine("0 - close");
+
+                int z;
+
+                bool parse = int.TryParse(Console.ReadLine(), out z);
+
+                if (parse)
                 {
-                    case 1:
-                        Console.Clear();
-                        Login();
-                        break;
-                    case 0:
-                        Environment.Exit(1);
-                        break;
-                    default:
-                        Console.WriteLine("Error, please repeat.");
-                        Console.WriteLine();
-                        break;
+                    switch (z)
+                    {
+                        case 1:
+                            Console.Clear();
+                            Login();
+                            break;
+                        case 0:
+                            Environment.Exit(1);
+                            break;
+                        default:
+                            Console.WriteLine("Error, please repeat.");
+                            Console.ReadKey();
+                            break;
+                    }
                 }
             }
-            Console.ReadKey(true);
         }
 
         private static void Run()
         {
-            Console.Clear();
-            Console.WriteLine("Subscription");
-            Console.WriteLine("Choose a option");
-            Console.WriteLine("1 - index");
-            Console.WriteLine("2 - action");
-            Console.WriteLine("0 - logout");
-            int z;
-            bool parse = int.TryParse(Console.ReadLine(), out z);
-            if (parse)
+            while (connection != null && connection.State.ToString() == "Connected")
             {
-                switch (z)
-                {
-                    case 1:
-                        Console.Clear();
-                        IndexSubscription();
-                        break;
-                    case 2:
-                        Console.Clear();
-                        ActionSubscription();
-                        break;
-                    case 0:
+                Console.Clear();
+                Console.WriteLine("Subscription");
+                Console.WriteLine("Choose a option");
+                Console.WriteLine("1 - Subscript symbol");
+                Console.WriteLine("2 - Unsubscript symbol");
+                Console.WriteLine("0 - logout");
 
-                        break;
-                    default:
-                        Console.WriteLine("Error, please repeat.");
-                        Console.WriteLine();
-                        break;
+                int z;
+                bool parse = int.TryParse(Console.ReadLine(), out z);
+
+                if (parse)
+                {
+                    switch (z)
+                    {
+                        case 1:
+                            Console.Clear();
+                            StockSubscription();
+                            break;
+                        case 2:
+                            Console.Clear();
+                            StockUnsubscript();
+                            break;
+                        case 0:
+                            if (connection != null) connection.Stop(); Start();
+                            break;
+                        default:
+                            Console.WriteLine("Error, please repeat.");
+                            Console.ReadKey();
+                            break;
+                    }
                 }
             }
-            Console.ReadKey(true);
+        }
 
+        private static void SubscriptionToFile()
+        {
+            if (myHub != null)
+            {
+                var path = AppDomain.CurrentDomain.BaseDirectory + @"StockSubscription.txt";
+
+                if (!File.Exists(path))
+                {
+                    File.Create(path).Dispose();
+
+                    myHub.On<StockItem>("subscriptionUpdate", subscribeSymbol =>
+                    {
+                        File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", subscribeSymbol.Symbol, subscribeSymbol.Value));
+                        //using (TextWriter tw = new StreamWriter(path))
+                        //using (TextWriter tw = new StreamWriter(path,true))
+                        //{
+                        //    tw.WriteLine("Product information received: " + subscribeSymbol.Symbol + " Value:" + subscribeSymbol.Value);
+                        //    tw.Close();
+                        //}
+                    });
+                }
+                else if (File.Exists(path))
+                {
+                    myHub.On<StockItem>("subscriptionUpdate", subscribeSymbol =>
+                    {
+                        File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", subscribeSymbol.Symbol, subscribeSymbol.Value));
+                        //using (TextWriter tw = new StreamWriter(path))
+                        //using (TextWriter tw = new StreamWriter(path,true))
+                        //{
+                        //    tw.WriteLine("Product information received: " + subscribeSymbol.Symbol + " Value:" + subscribeSymbol.Value);
+                        //    tw.Close();
+                        //}
+                    });
+                }
+            }
         }
     }
 }
