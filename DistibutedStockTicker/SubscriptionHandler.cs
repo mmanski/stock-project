@@ -52,10 +52,7 @@ namespace DistibutedStockTicker
                     _subscriptions.Add(subscription);
                 }
             }
-            catch (System.NullReferenceException e)
-            {
-                Console.WriteLine("Attempted divide by zero.");
-            }
+            catch (System.NullReferenceException) { }
             
             
         }
@@ -74,11 +71,15 @@ namespace DistibutedStockTicker
 
         public List<UserDTO> getSubscribedUsers(StockItem stockItem)
         {
-            var subscription = _subscriptions.Find(x => x.StockItem.Symbol == stockItem.Symbol);
-            if (subscription != null)
+            try
             {
-                return subscription.Users;
+                var subscription = _subscriptions.Find(x => x.StockItem.Symbol == stockItem.Symbol);
+                if (subscription != null)
+                {
+                    return subscription.Users;
+                }
             }
+            catch (NullReferenceException) { }
             return Enumerable.Empty<UserDTO>().ToList<UserDTO>();
         }
     }
