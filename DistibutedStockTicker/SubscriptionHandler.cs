@@ -37,18 +37,27 @@ namespace DistibutedStockTicker
 
         public void Subscribe(StockItem stockItem, UserDTO user)
         {
-            var subscription = _subscriptions.Find(x => x.StockItem.Symbol == stockItem.Symbol);
-            if (subscription != null)
+            try
             {
-                subscription.Users.Add(user);
-            }
-            else
-            {
-                subscription = new SubscriptionModel(stockItem);
-                subscription.Users.Add(user);
+                var subscription = _subscriptions.Find(x => x.StockItem.Symbol == stockItem.Symbol);
+                if (subscription != null)
+                {
+                    subscription.Users.Add(user);
+                }
+                else
+                {
+                    subscription = new SubscriptionModel(stockItem);
+                    subscription.Users.Add(user);
 
-                _subscriptions.Add(subscription);
+                    _subscriptions.Add(subscription);
+                }
             }
+            catch (System.NullReferenceException e)
+            {
+                Console.WriteLine("Attempted divide by zero.");
+            }
+            
+            
         }
 
         public void Unscubscribe(StockItem stockItem, UserDTO user)
