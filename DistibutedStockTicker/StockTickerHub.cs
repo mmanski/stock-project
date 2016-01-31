@@ -33,7 +33,7 @@ namespace DistibutedStockTicker
             Clients.All.receiveTicker(symbol);
         }
 
-        public StockItem Subscribe(string symbol)
+        public StockItem SubscribeUserToSymbol(string symbol) //*
         {
             string username = Context.QueryString["username"];
             var stockItem = stockItems.Find(x => x.Symbol == symbol);
@@ -42,6 +42,20 @@ namespace DistibutedStockTicker
             _subscriptionHandler.Subscribe(stockItem, user);
 
             return stockItem;
+        }
+
+        public List<StockItem> SubscribeUserToIndex(string index)
+        {
+            string username = Context.QueryString["username"];
+            var indexItems = stockItems.FindAll(x => x.Id == index);
+            var user = _userManager.FindUserByName(username);
+
+            foreach (var stockItem in indexItems)
+            {
+                _subscriptionHandler.Subscribe(stockItem, user);
+            }
+
+            return stockItems;
         }
 
         public void Unsubscribe(string symbol)
@@ -62,7 +76,7 @@ namespace DistibutedStockTicker
         {
             StockItem result = StockDataProvider.Container.StockProducts.Find(x => x.Symbol == symbol);
             string info = result != null
-                ? result.Id.ToString() + " " + result.Name + " " + result.Symbol + " " + result.Value
+                ? result.Id + " " + result.Name + " " + result.Symbol + " " + result.Value
                 : "Product not found";
             string name = Context.QueryString["username"];
 

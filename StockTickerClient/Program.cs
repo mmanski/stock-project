@@ -25,25 +25,59 @@ namespace StockTickerClient
                 Console.WriteLine("Chose one stock from this list:");
                 Console.WriteLine("Stock Items: {0}", StockItems);
 
-                string symbol = "";
+                Console.WriteLine("Choose an option");
+                Console.WriteLine("1 - subscribe to stock symbol");
+                Console.WriteLine("0 - subscribe to stock index");
 
-                while (symbol != "x")
+                string input = "";
+
+                int z;
+                bool parse = int.TryParse(Console.ReadLine(), out z);
+
+                if (parse)
                 {
-                    Console.WriteLine("Insert stock symbol you want to subscribe on (x - exit):");
-                    symbol = Console.ReadLine();
-                    if (symbol != "x")
+                    switch (z)
                     {
-                        var subscribeSymbol = myHub.Invoke<StockItem>("Subscribe", symbol).Result;
+                        case 1:
+                            while (input != "x")
+                            {
+                                Console.WriteLine("Insert stock symbol you want to subscribe on (x - exit):");
+                                input = Console.ReadLine();
+                                if (input != "x")
+                                {
+                                    var subscribeSymbol = myHub.Invoke<StockItem>("SubscribeUserToSymbol", input).Result;
 
-                        if (subscribeSymbol != null)
-                        {
-                            Console.WriteLine("Stock subscript! Check your StockSubscription file");
+                                    if (subscribeSymbol != null)
+                                    {
+                                        Console.WriteLine("Stock subscript! Check your StockSubscription file");
+                                        break;
+                                    }
+                                    else Console.WriteLine("Stock no exist");
+                                }
+                            }
                             break;
-                        }
-                        else Console.WriteLine("Stock no exist");
+                        case 0:
+                            while (input != "x")
+                            {
+                                Console.WriteLine("Insert stock index you want to subscribe on (x - exit):");
+                                input = Console.ReadLine();
+                                if (input != "x")
+                                {
+                                    var subscribeIndex = myHub.Invoke<List<StockItem>>("SubscribeUserToIndex", input).Result;
+
+                                    if (subscribeIndex != null)
+                                    {
+                                        Console.WriteLine("Stock subscript! Check your StockSubscription file");
+                                        break;
+                                    }
+                                    else Console.WriteLine("Stock no exist");
+                                }
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 }
-
                 SubscriptionToFile();
                 Console.ReadKey();
             }
@@ -214,6 +248,15 @@ namespace StockTickerClient
                         //    tw.Close();
                         //}
                     });
+                    myHub.On<List<StockItem>>("subscriptionIndexUpdate", subscribeIndex =>
+                    {
+                        foreach (var stockItem in subscribeIndex)
+                        {
+                            File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", stockItem.Symbol, stockItem.Value));
+                        }
+                        
+                    });
+                    Console.ReadKey();
                 }
                 else if (File.Exists(path))
                 {
@@ -227,6 +270,12 @@ namespace StockTickerClient
                         //    tw.Close();
                         //}
                     });
+                    myHub.On<List<StockItem>>("subscriptionIndexUpdate", subscribeIndex =>
+                    {
+                        foreach (var stockItem in subscribeIndex)
+                            File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", stockItem.Symbol, stockItem.Value));
+                    });
+                    Console.ReadKey();
                 }
             }
         }

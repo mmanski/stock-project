@@ -53,8 +53,6 @@ namespace DistibutedStockTicker
                 }
             }
             catch (System.NullReferenceException) { }
-            
-            
         }
 
         public void Unscubscribe(StockItem stockItem, UserDTO user)
