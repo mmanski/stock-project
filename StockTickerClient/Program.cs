@@ -78,7 +78,6 @@ namespace StockTickerClient
                             break;
                     }
                 }
-                SubscriptionToFile();
                 Console.ReadKey();
             }
             else
@@ -144,6 +143,7 @@ namespace StockTickerClient
                     }
                     else
                     {
+                        SubscriptionToFile();
                         Console.WriteLine("Connected");
                     }
 
@@ -241,12 +241,6 @@ namespace StockTickerClient
                     myHub.On<StockItem>("subscriptionUpdate", subscribeSymbol =>
                     {
                         File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", subscribeSymbol.Symbol, subscribeSymbol.Value));
-                        //using (TextWriter tw = new StreamWriter(path))
-                        //using (TextWriter tw = new StreamWriter(path,true))
-                        //{
-                        //    tw.WriteLine("Product information received: " + subscribeSymbol.Symbol + " Value:" + subscribeSymbol.Value);
-                        //    tw.Close();
-                        //}
                     });
                     myHub.On<List<StockItem>>("subscriptionIndexUpdate", subscribeIndex =>
                     {
@@ -263,12 +257,6 @@ namespace StockTickerClient
                     myHub.On<StockItem>("subscriptionUpdate", subscribeSymbol =>
                     {
                         File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", subscribeSymbol.Symbol, subscribeSymbol.Value));
-                        //using (TextWriter tw = new StreamWriter(path))
-                        //using (TextWriter tw = new StreamWriter(path,true))
-                        //{
-                        //    tw.WriteLine("Product information received: " + subscribeSymbol.Symbol + " Value:" + subscribeSymbol.Value);
-                        //    tw.Close();
-                        //}
                     });
                     myHub.On<List<StockItem>>("subscriptionIndexUpdate", subscribeIndex =>
                     {

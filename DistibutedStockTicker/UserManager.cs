@@ -41,7 +41,17 @@ namespace DistibutedStockTicker
 
         public void AddUser(string username, string connectionId)
         {
-            _connections.AddUser(new UserDTO(username, connectionId));
+            var user = FindUserByName(username);
+
+            if (user == null)
+            {
+                _connections.AddUser(new UserDTO(username, connectionId));
+            }
+            else
+            {
+                throw new LoginException();
+            }
+
         }
 
         private class ConnectionMapping<T>
