@@ -10,6 +10,7 @@ namespace StockTickerClient
     {
         private static IHubProxy myHub;
         private static HubConnection connection;
+        public static User _username = new User();
 
         private static void Main(string[] args)
         {
@@ -131,6 +132,10 @@ namespace StockTickerClient
             connection = new HubConnection("http://localhost:49954/", querystringData);
             myHub = connection.CreateHubProxy("StockTickerHub");
 
+            _username.Username = username;
+
+            Console.WriteLine(_username.Username);
+
             try
             {
                 connection.Start().ContinueWith(task =>
@@ -240,13 +245,13 @@ namespace StockTickerClient
 
                     myHub.On<StockItem>("subscriptionUpdate", subscribeSymbol =>
                     {
-                        File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", subscribeSymbol.Symbol, subscribeSymbol.Value));
+                        File.AppendAllText(path, String.Format("{0}: Product information received:{1} Value:{2}\n ", _username.Username, subscribeSymbol.Symbol, subscribeSymbol.Value));
                     });
                     myHub.On<List<StockItem>>("subscriptionIndexUpdate", subscribeIndex =>
                     {
                         foreach (var stockItem in subscribeIndex)
                         {
-                            File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", stockItem.Symbol, stockItem.Value));
+                            File.AppendAllText(path, String.Format("{0}: Product information received:{1} Value:{2}\n ", _username.Username, stockItem.Symbol, stockItem.Value));
                         }
 
                     });
@@ -256,12 +261,12 @@ namespace StockTickerClient
                 {
                     myHub.On<StockItem>("subscriptionUpdate", subscribeSymbol =>
                     {
-                        File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", subscribeSymbol.Symbol, subscribeSymbol.Value));
+                        File.AppendAllText(path, String.Format("{0}: Product information received:{1} Value:{2}\n ", _username.Username, subscribeSymbol.Symbol, subscribeSymbol.Value));
                     });
                     myHub.On<List<StockItem>>("subscriptionIndexUpdate", subscribeIndex =>
                     {
                         foreach (var stockItem in subscribeIndex)
-                            File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", stockItem.Symbol, stockItem.Value));
+                            File.AppendAllText(path, String.Format("{0}: Product information received:{1} Value:{2}\n ", _username.Username, stockItem.Symbol, stockItem.Value));
                     });
                     Console.ReadKey();
                 }
