@@ -92,19 +92,51 @@ namespace StockTickerClient
         {
             if (myHub != null)
             {
+                Console.WriteLine("Choose an option");
+                Console.WriteLine("1 - unsubscribe to stock symbol");
+                Console.WriteLine("0 - unsubscribe to stock index");
+
                 string symbol = "";
-                while (symbol != "x")
+
+                int z;
+                bool parse = int.TryParse(Console.ReadLine(), out z);
+
+                if (parse)
                 {
-                    Console.WriteLine("Insert stock symbol you want to unsubscribe on (x - exit):");
-                    symbol = Console.ReadLine();
-                    if (symbol != "x")
+                    switch (z)
                     {
-                        myHub.Invoke("Unsubscribe", symbol);
-                        Console.WriteLine("Stock unsubscript!");
-                        break;
+                        case 1:
+
+                            while (symbol != "x")
+                            {
+                                Console.WriteLine("Insert stock symbol you want to unsubscribe on (x - exit):");
+                                symbol = Console.ReadLine();
+                                if (symbol != "x")
+                                {
+                                    myHub.Invoke("UnsubscribeBySymbol", symbol);
+                                    Console.WriteLine("Stock {0} unsubscript!", symbol);
+                                    break;
+                                }
+                            }
+                            break;
+                        case 0:
+                            while (symbol != "x")
+                            {
+                                Console.WriteLine("Insert stock index you want to unsubscribe on (x - exit):");
+                                symbol = Console.ReadLine();
+                                if (symbol != "x")
+                                {
+                                    myHub.Invoke("UnsubscribeByIndex", symbol);
+                                    Console.WriteLine("Stock {0} unsubscript!", symbol);
+                                    break;
+                                }
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 }
-                Console.ReadKey();
+                            Console.ReadKey();
             }
             else
             {

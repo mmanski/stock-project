@@ -58,7 +58,7 @@ namespace DistibutedStockTicker
             return stockItems;
         }
 
-        public void Unsubscribe(string symbol)
+        public void UnsubscribeBySymbol(string symbol)
         {
             string username = Context.QueryString["username"];
             var stockItem = StockDataProvider.Container.StockProducts.Find(x => x.Symbol == symbol);
@@ -67,7 +67,20 @@ namespace DistibutedStockTicker
             _subscriptionHandler.Unscubscribe(stockItem, user);
         }
 
-        public void notifySubscribers()
+        public void UnsubscribeByIndex(string index)
+        {
+            string username = Context.QueryString["username"];
+            var indexItems = StockDataProvider.Container.StockProducts.FindAll(x => x.Id == index);
+            var user = _userManager.FindUserByName(username);
+            foreach (var stockItem in indexItems)
+            {
+                _subscriptionHandler.Unscubscribe(stockItem, user);
+            }
+        }
+
+
+
+    public void notifySubscribers()
         {
 
         }
