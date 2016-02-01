@@ -13,8 +13,6 @@ namespace StockTickerClient
         private static HubConnection connection;
         public static User _username = new User();
         private static string Message;
-
-        //public static FileSaving FileSaver;
         
         private static void Main(string[] args)
         {
@@ -27,10 +25,10 @@ namespace StockTickerClient
         {
             if (myHub != null)
             {
-                var StockItems = myHub.Invoke<string>("GetAllStockItems").Result;
+
 
                 Console.WriteLine("Chose one stock from this list:");
-                Console.WriteLine("Stock Items: {0}", StockItems);
+                Console.WriteLine("Stock Items: {0}", _myhub.GetAllStockItems());
 
                 Console.WriteLine("Choose an option");
                 Console.WriteLine("1 - subscribe to stock symbol");
@@ -56,10 +54,10 @@ namespace StockTickerClient
 
                                     if (subscribeSymbol != null)
                                     {
-                                        Console.WriteLine("Stock subscript! Check your StockSubscription file");
+                                        Console.WriteLine("Stock {0} subscript! Check your StockSubscription file", input);
                                         break;
                                     }
-                                    else Console.WriteLine("Stock no exist");
+                                    else Console.WriteLine("Stock {0} no exist", input);
                                 }
                             }
                             break;
@@ -74,10 +72,10 @@ namespace StockTickerClient
 
                                     if (subscribeIndex != null)
                                     {
-                                        Console.WriteLine("Stock subscript! Check your StockSubscription file");
+                                        Console.WriteLine("Stock {0} subscript! Check your StockSubscription file", input);
                                         break;
                                     }
-                                    else Console.WriteLine("Stock no exist");
+                                    else Console.WriteLine("Stock {0} no exist", input);
                                 }
                             }
                             break;
@@ -157,8 +155,7 @@ namespace StockTickerClient
 
             var userName = Console.ReadLine();
 
-            Message = _myhub.Connect(userName);
-            Console.WriteLine(Message);
+            _myhub.Connect(userName);
 
             myHub = _myhub.getMyHub();
             connection = _myhub.connection;

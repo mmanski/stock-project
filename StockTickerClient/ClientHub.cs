@@ -21,7 +21,7 @@ namespace StockTickerClient
         {
             return _myHub;
         }
-        public string Connect(string username)
+        public void Connect(string username)
         {
             var querystringData = new Dictionary<string, string>();
             querystringData.Add("username", username);
@@ -38,23 +38,28 @@ namespace StockTickerClient
                 {
                     if (task.IsFaulted)
                     {
-                        return "There was an error opening the connection:{0}"+
-                                          task.Exception.GetBaseException();
+                        Console.WriteLine("There was an error opening the connection:{0}",
+                                          task.Exception.GetBaseException());
                     }
                     else
                     {
-                        return "Connected. Press Enter.";
                         FileSaver.SubscriptionToFile(_username.Username);
+                        Console.WriteLine("Connected! Press Any Key!");
                     }
 
                 }).Wait();
             }
             catch (Exception e)
             {
-                return "Connection problem! {0}"+ e.Message;
+                Console.WriteLine("Connection problem! {0}" + e.Message);
 
             }
-            return "";
         }
+        public string GetAllStockItems()
+        {
+            var StockItems = _myHub.Invoke<string>("GetAllStockItems").Result;
+            return StockItems;
+        }
+
     }
 }
