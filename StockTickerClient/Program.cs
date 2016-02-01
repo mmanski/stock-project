@@ -8,7 +8,7 @@ namespace StockTickerClient
 {
     class Program
     {
-        private static ClientHub _myhub;
+        private static ConnectionHandler _myhub;
         private static IHubProxy myHub;
         private static HubConnection connection;
         public static User _username = new User();
@@ -16,7 +16,7 @@ namespace StockTickerClient
         
         private static void Main(string[] args)
         {
-            _myhub = new ClientHub();
+            _myhub = new ConnectionHandler();
 
             Start();
         }
@@ -155,7 +155,9 @@ namespace StockTickerClient
 
             var userName = Console.ReadLine();
 
-            _myhub.Connect(userName);
+            string error = _myhub.Connect(userName);
+            Console.WriteLine(error);
+            Console.ReadKey();
 
             myHub = _myhub.getMyHub();
             connection = _myhub.connection;

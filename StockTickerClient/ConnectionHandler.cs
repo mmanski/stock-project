@@ -7,21 +7,21 @@ using System.Threading.Tasks;
 
 namespace StockTickerClient
 {
-    class ClientHub
+    class ConnectionHandler
     {
         private IHubProxy _myHub;
         public HubConnection connection;
         public FileSaving FileSaver;
         public User _username = new User();
 
-        public ClientHub()
+        public ConnectionHandler()
         {
         }
         public IHubProxy getMyHub()
         {
             return _myHub;
         }
-        public void Connect(string username)
+        public string Connect(string username)
         {
             var querystringData = new Dictionary<string, string>();
             querystringData.Add("username", username);
@@ -38,22 +38,26 @@ namespace StockTickerClient
                 {
                     if (task.IsFaulted)
                     {
-                        Console.WriteLine("There was an error opening the connection:{0}",
-                                          task.Exception.GetBaseException());
+                        return "There was an error opening the connection:{0}"+
+                                          task.Exception.GetBaseException();
                     }
                     else
                     {
                         FileSaver.SubscriptionToFile(_username.Username);
-                        Console.WriteLine("Connected! Press Any Key!");
+
+
+                        return "Connected! Press Any Key!";
+
                     }
 
                 }).Wait();
             }
             catch (Exception e)
             {
-                Console.WriteLine("Connection problem! {0}" + e.Message);
+                return "Connection problem!" + e.Message;
 
             }
+            return "Connected! Press Any Key";
         }
         public string GetAllStockItems()
         {
