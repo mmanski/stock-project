@@ -49,7 +49,7 @@ namespace DistibutedStockTicker
             }
             else
             {
-                throw new LoginException();
+                //throw new LoginException();
             }
 
         }
@@ -81,7 +81,7 @@ namespace DistibutedStockTicker
                     }
                     else
                     {
-                        throw new LoginException();
+                        //throw new LoginException();
                     }
                 }
             }

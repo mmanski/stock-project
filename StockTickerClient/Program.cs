@@ -143,8 +143,8 @@ namespace StockTickerClient
                     }
                     else
                     {
+                        Console.WriteLine("Connected. Press Enter.");
                         SubscriptionToFile();
-                        Console.WriteLine("Connected");
                     }
 
                 }).Wait();
@@ -248,7 +248,7 @@ namespace StockTickerClient
                         {
                             File.AppendAllText(path, String.Format("Product information received:{0} Value:{1}\n ", stockItem.Symbol, stockItem.Value));
                         }
-                        
+
                     });
                     Console.ReadKey();
                 }
