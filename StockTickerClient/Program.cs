@@ -8,12 +8,18 @@ namespace StockTickerClient
 {
     class Program
     {
+        private static ClientHub _myhub;
         private static IHubProxy myHub;
         private static HubConnection connection;
         public static User _username = new User();
+        private static string Message;
 
+        //public static FileSaving FileSaver;
+        
         private static void Main(string[] args)
         {
+            _myhub = new ClientHub();
+
             Start();
         }
 
@@ -151,46 +157,16 @@ namespace StockTickerClient
 
             var userName = Console.ReadLine();
 
-            Connect(userName);
+            Message = _myhub.Connect(userName);
+            Console.WriteLine(Message);
+
+            myHub = _myhub.getMyHub();
+            connection = _myhub.connection;
 
             if (connection != null)
-                Run();
-        }
-
-        private static void Connect(string username)
-        {
-            var querystringData = new Dictionary<string, string>();
-            querystringData.Add("username", username);
-            connection = new HubConnection("http://localhost:49954/", querystringData);
-            myHub = connection.CreateHubProxy("StockTickerHub");
-
-            _username.Username = username;
-
-            Console.WriteLine(_username.Username);
-
-            try
-            {
-                connection.Start().ContinueWith(task =>
-                {
-                    if (task.IsFaulted)
-                    {
-                        Console.WriteLine("There was an error opening the connection:{0}",
-                                          task.Exception.GetBaseException());
-                        Console.ReadKey();
-                    }
-                    else
-                    {
-                        Console.WriteLine("Connected. Press Enter.");
-                        SubscriptionToFile();
-                    }
-
-                }).Wait();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Connection problem! {0}", e.Message);
-                Console.ReadKey();
-            }
+                SubscriptionView();
+            else
+                Console.WriteLine("Blad z polaczeniem!");
         }
 
         private static void Start()
@@ -227,7 +203,7 @@ namespace StockTickerClient
             }
         }
 
-        private static void Run()
+        private static void SubscriptionView()
         {
             while (connection != null && connection.State.ToString() == "Connected")
             {
@@ -261,46 +237,6 @@ namespace StockTickerClient
                             Console.ReadKey();
                             break;
                     }
-                }
-            }
-        }
-
-        private static void SubscriptionToFile()
-        {
-            if (myHub != null)
-            {
-                var path = AppDomain.CurrentDomain.BaseDirectory + @"StockSubscription.txt";
-
-                if (!File.Exists(path))
-                {
-                    File.Create(path).Dispose();
-
-                    myHub.On<StockItem>("subscriptionUpdate", subscribeSymbol =>
-                    {
-                        File.AppendAllText(path, String.Format("{0}: Product information received:{1} Value:{2}\n ", _username.Username, subscribeSymbol.Symbol, subscribeSymbol.Value));
-                    });
-                    myHub.On<List<StockItem>>("subscriptionIndexUpdate", subscribeIndex =>
-                    {
-                        foreach (var stockItem in subscribeIndex)
-                        {
-                            File.AppendAllText(path, String.Format("{0}: Product information received:{1} Value:{2}\n ", _username.Username, stockItem.Symbol, stockItem.Value));
-                        }
-
-                    });
-                    Console.ReadKey();
-                }
-                else if (File.Exists(path))
-                {
-                    myHub.On<StockItem>("subscriptionUpdate", subscribeSymbol =>
-                    {
-                        File.AppendAllText(path, String.Format("{0}: Product information received:{1} Value:{2}\n ", _username.Username, subscribeSymbol.Symbol, subscribeSymbol.Value));
-                    });
-                    myHub.On<List<StockItem>>("subscriptionIndexUpdate", subscribeIndex =>
-                    {
-                        foreach (var stockItem in subscribeIndex)
-                            File.AppendAllText(path, String.Format("{0}: Product information received:{1} Value:{2}\n ", _username.Username, stockItem.Symbol, stockItem.Value));
-                    });
-                    Console.ReadKey();
                 }
             }
         }
